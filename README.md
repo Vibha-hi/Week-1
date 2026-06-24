@@ -136,42 +136,58 @@ done
 # Iterate over files
 
 
-for file in *.log; do
+for file in *.log;   do
+
   echo "Processing: $file ($(wc -l < "$file") lines)"
+  
 done
 
 # C-style for loop
 
 for ((i=0; i<5; i++)); do
+
   echo "Index: $i"
+  
 done
 
 # Iterate over command output
 
 for user in $(cut -d: -f1 /etc/passwd); do
+
   echo "User: $user"
+  
 done
 
-while loops
+WHILE loops
 
 # Counter-based
 
 counter=1
 while [ $counter -le 5 ]; do
+
   echo "Count: $counter"
+  
   ((counter++))
+  
 done
 
 # Read file line by line (IMPORTANT for CTFs)
+
 while IFS= read -r line; do
+
   echo "Line: $line"
+  
 done < input.txt
 
 # Infinite loop with break condition
 while true; do
+
   read -p "Enter 'quit' to exit: " input
+  
   [ "$input" = "quit" ] && break
+  
   echo "You said: $input"
+  
 done
 
 until loops
@@ -179,9 +195,14 @@ until loops
 # Run until condition becomes true
 
 attempts=0
+
 until [ $attempts -ge 5 ]; do
+
   echo "Attempt $((attempts + 1))"
+
+  
   ((attempts++))
+  
 done
 
 Loop control
@@ -190,15 +211,22 @@ Loop control
 
 
 for i in {1..10}; do
+
+
   [ $i -eq 5 ] && continue    # Skip iteration 5
+  
   echo $i
+  
 done
 
 # exit the loop entirely
 
 for i in {1..100}; do
+
   [ $i -eq 42 ] && break      # Stop at 42
+  
   echo $i
+  
 done
 
 Functions
@@ -206,76 +234,105 @@ Functions
 # Define a function
 
 greet() {
+
   local name="$1"    # local variables don't pollute global scope
+  
   echo "Hello, $name!"
 }
 
 # Call it
-greet "CSOT"         # Output: Hello, CSOT!
+greet "INFOSEC"         # Output: Hello, INFOSEC!
 greet "$USER"        # Output: Hello, kali!
 
 Functions with return values
 
 # Return status (0 = success, 1-255 = failure)
 is_root() {
+
   [ "$(id -u)" -eq 0 ]
+  
 }
 
 if is_root; then
+
   echo "Running as root"
+  
 else
+
   echo "Not root"
+  
 fi
 
 # Return data via stdout (capture with command substitution)
 get_ip() {
+
   curl -s ifconfig.me
+  
 }
 
 my_ip=$(get_ip)
+
 echo "My IP: $my_ip"
 
 
 Function with multiple parameters
 
 scan_port() {
+
   local host="$1"
+  
   local port="$2"
   
   if nc -z -w1 "$host" "$port" 2>/dev/null; then
+  
     echo "[OPEN] $host:$port"
     return 0
   else
+  
     echo "[CLOSED] $host:$port"
     return 1
   fi
 }
 
 scan_port "example.com" 80
+
 scan_port "example.com" 443
 
 Error handling
 
 #!/bin/bash
 set -e          # Exit immediately if any command fails
+
 set -u          # Treat unset variables as errors
+
 set -o pipefail # Pipe fails if any command in the pipe fails
 
 # Check if required arguments are provided
+
 if [ $# -lt 1 ]; then
+
+
   echo "Usage: $0 <target>" >&2  # Error messages go to stderr
+  
   exit 1
+  
 fi
 
 # Check if a required tool is installed
+
 if ! command -v nmap &>/dev/null; then
+
   echo "Error: nmap is not installed" >&2
+  
   exit 1
 fi
 
 # Check if a file exists before processing
+
 if [ ! -f "$1" ]; then
+
   echo "Error: File '$1' not found" >&2
+  
   exit 1
 fi
 
@@ -286,27 +343,38 @@ Practical CTF scripting patterns
 Pattern 1: Brute-force with a wordlist
 
 #!/bin/bash
+
+
 # Try each password in a wordlist against a service
 
 wordlist="$1"
+
 target="$2"
 
 if [ $# -ne 2 ]; then
+
   echo "Usage: $0 <wordlist> <target_url>"
+  
   exit 1
+  
 fi
 
 while IFS= read -r password; do
+
   response=$(curl -s -o /dev/null -w "%{http_code}" \
+  
     -d "user=admin&pass=$password" "$target")
   
   if [ "$response" != "401" ]; then
+  
     echo "[+] Found password: $password (HTTP $response)"
     exit 0
   fi
 done < "$wordlist"
 
+
 echo "[-] No valid password found"
+
 
 Pattern 2: Timestamped output
 
@@ -331,7 +399,7 @@ outfile="report_$(date +%Y%m%d_%H%M%S).txt"
 
 echo "Report saved to: $outfile"
 
-Pattern 3: Process multiple files
+#Pattern 3: Process multiple files#
 
 #!/bin/bash
 # Search for flags across all files in a directory
